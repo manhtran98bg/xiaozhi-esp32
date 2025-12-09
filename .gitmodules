@@ -1,0 +1,3 @@
+[submodule "main/boards/esp32c3-custom-board"]
+	path = main/boards/esp32c3-custom-board
+	url = https://github.com/manhtran98bg/esp32c3-custom-board.git
