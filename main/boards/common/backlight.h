@@ -10,7 +10,7 @@
 class Backlight {
 public:
     Backlight();
-    ~Backlight();
+    virtual ~Backlight();
 
     void RestoreBrightness();
     void SetBrightness(uint8_t brightness, bool permanent = false);
