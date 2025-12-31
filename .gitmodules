@@ -1,3 +1,7 @@
 [submodule "main/boards/esp32c3-custom-board"]
 	path = main/boards/esp32c3-custom-board
 	url = https://github.com/manhtran98bg/esp32c3-custom-board.git
+[submodule "main/user/LovyanGFX"]
+	path = main/user/LovyanGFX
+	url = https://github.com/lovyan03/LovyanGFX.git
+	branch = develop
