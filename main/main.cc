@@ -10,7 +10,11 @@
 #include "application.h"
 #include "system_info.h"
 
+#include "display_backend.hpp"
+
 #define TAG "main"
+
+static LcdBackend tft;
 
 extern "C" void app_main(void)
 {
@@ -22,9 +26,13 @@ extern "C" void app_main(void)
         ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK(ret);
-
+    tft.init();
+    tft.setRotation(0);
+    tft.setBrightness(255);
+    tft.setSwapBytes(true);
+    tft.fillScreen(TFT_RED);
     // Initialize and run the application
-    auto& app = Application::GetInstance();
-    app.Initialize();
-    app.Run();  // This function runs the main event loop and never returns
+    // auto& app = Application::GetInstance();
+    // app.Initialize();
+    // app.Run();  // This function runs the main event loop and never returns
 }

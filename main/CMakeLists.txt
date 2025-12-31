@@ -711,12 +711,37 @@ if(CONFIG_IDF_TARGET_ESP32)
                              )
 endif()
 
+set(USER_CODE_ROOT ${CMAKE_CURRENT_LIST_DIR}/user)
+set(LGFX_ROOT ${USER_CODE_ROOT}/LovyanGFX)
+
+list(APPEND INCLUDE_DIRS ${LGFX_ROOT}/src ${USER_CODE_ROOT})
+message(STATUS "LovyanGFX path = ${LGFX_ROOT}")
+file(GLOB_RECURSE SRCS
+     ${LGFX_ROOT}/src/lgfx/Fonts/efont/*.c
+     ${LGFX_ROOT}/src/lgfx/Fonts/IPA/*.c
+     ${LGFX_ROOT}/src/lgfx/utility/*.c
+     ${LGFX_ROOT}/src/lgfx/v1/*.cpp
+     ${LGFX_ROOT}/src/lgfx/v1/misc/*.cpp
+     ${LGFX_ROOT}/src/lgfx/v1/panel/*.cpp
+     ${LGFX_ROOT}/src/lgfx/v1/platforms/arduino_default/*.cpp
+     ${LGFX_ROOT}/src/lgfx/v1/platforms/esp32/*.cpp
+     ${LGFX_ROOT}/src/lgfx/v1/platforms/esp32c3/*.cpp
+     ${LGFX_ROOT}/src/lgfx/v1/platforms/esp32s2/*.cpp
+     ${LGFX_ROOT}/src/lgfx/v1/platforms/esp32s3/*.cpp
+     ${LGFX_ROOT}/src/lgfx/v1/touch/*.cpp
+     )
+list(APPEND SOURCES ${SRCS})
+
+message(STATUS "SRCS = ${SOURCES}")
+
 idf_component_register(SRCS ${SOURCES}
                     EMBED_FILES ${LANG_SOUNDS} ${COMMON_SOUNDS}
                     INCLUDE_DIRS ${INCLUDE_DIRS}
                     WHOLE_ARCHIVE
                     )
-
+target_compile_options(${COMPONENT_LIB} PRIVATE
+    -Wno-array-bounds
+)
 # Use target_compile_definitions to define BOARD_TYPE, BOARD_NAME
 # If BOARD_NAME is empty, use BOARD_TYPE
 if(NOT BOARD_NAME)
