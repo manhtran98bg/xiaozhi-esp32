@@ -35,7 +35,7 @@ constexpr uint16_t PINK        = lgfx::v1::color565(255, 192, 203);
 constexpr uint16_t LIME        = lgfx::v1::color565(50,  205, 50);
 
 
-class LcdBackend : public lgfx::LGFX_Device
+class PanelGc9a01 : public lgfx::LGFX_Device
 {
 
   lgfx::Panel_GC9A01 _panel_instance;
@@ -43,7 +43,7 @@ class LcdBackend : public lgfx::LGFX_Device
   lgfx::Light_PWM _light_instance;
 
 public:
-  LcdBackend(void)
+  PanelGc9a01(void)
   {
     {                                    
       auto cfg = _bus_instance.config(); 
@@ -65,7 +65,7 @@ public:
     {
       auto cfg = _light_instance.config();
       cfg.pwm_channel = 0;
-      cfg.pin_bl = GPIO_NUM_7;
+      cfg.pin_bl = LCD_BL;
       _light_instance.config(cfg);
     }
     _panel_instance.light(&_light_instance);
@@ -93,3 +93,4 @@ public:
     setPanel(&_panel_instance);
   }
 };
+

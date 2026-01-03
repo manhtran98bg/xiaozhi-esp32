@@ -9,13 +9,26 @@
 
 #include "application.h"
 #include "system_info.h"
-
-#include "display_backend.hpp"
+#include "Face.h"
+#include "ScreenDriver.h"
+#include "CanvasLGFX.h"
+#include "CanvasManagerLGFX.h"
 
 #define TAG "main"
 
-static LcdBackend tft;
 
+ICanvasManager *canvasManager = new CanvasManagerLGFX();
+Face *face;
+ICanvas *canvas;
+
+static void face_task(void *pvParameters)
+{
+    while (1)
+    {
+        face->Update();
+        vTaskDelay(pdMS_TO_TICKS(20));
+    }
+}
 extern "C" void app_main(void)
 {
     // Initialize NVS flash for WiFi configuration
@@ -26,13 +39,23 @@ extern "C" void app_main(void)
         ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK(ret);
-    tft.init();
-    tft.setRotation(0);
-    tft.setBrightness(255);
-    tft.setSwapBytes(true);
-    tft.fillScreen(TFT_RED);
     // Initialize and run the application
-    // auto& app = Application::GetInstance();
-    // app.Initialize();
-    // app.Run();  // This function runs the main event loop and never returns
+    // Screen.begin();
+    // Screen.getPanel()->fillScreen(TFT_BROWN);
+    // Screen.getPanel()->setBrightness(255);
+    // int id = canvasManager->createCanvas(240, 240, 1);
+	// if (id == -1)
+	// {
+	// 	ESP_LOGI(TAG, "Create canvas failed");
+	// 	return;
+	// }
+	// canvas = canvasManager->getCanvasWrapper(id);
+	// if (canvas)
+	// {
+	// 	face = new Face(canvas, 50, 240, 240, BLACK, YELLOW);
+	// }
+    // xTaskCreate(face_task, "face_task", 4096, NULL, 5, NULL);
+    auto& app = Application::GetInstance();
+    app.Initialize();
+    app.Run();  // This function runs the main event loop and never returns
 }

@@ -70,11 +70,11 @@ if(CONFIG_BOARD_TYPE_BREAD_COMPACT_WIFI)
     set(BUILTIN_ICON_FONT font_awesome_14_1)
 elseif(CONFIG_BOARD_TYPE_ESP32C3_CUSTOM_BOARD)
     set(BOARD_TYPE "esp32c3-custom-board")  # must match folder name
-    # set(BUILTIN_TEXT_FONT font_puhui_basic_20_4)
-    # set(BUILTIN_ICON_FONT font_awesome_20_4)
-    # set(DEFAULT_EMOJI_COLLECTION twemoji_64)
-    set(BUILTIN_TEXT_FONT font_puhui_basic_14_1)
-    set(BUILTIN_ICON_FONT font_awesome_14_1)
+    set(BUILTIN_TEXT_FONT font_puhui_basic_20_4)
+    set(BUILTIN_ICON_FONT font_awesome_20_4)
+    set(DEFAULT_EMOJI_COLLECTION twemoji_64)
+    # set(BUILTIN_TEXT_FONT font_puhui_basic_14_1)
+    # set(BUILTIN_ICON_FONT font_awesome_14_1)
 elseif(CONFIG_BOARD_TYPE_BREAD_COMPACT_ML307)
     set(BOARD_TYPE "bread-compact-ml307")
     set(BUILTIN_TEXT_FONT font_puhui_basic_14_1)
@@ -714,7 +714,13 @@ endif()
 set(USER_CODE_ROOT ${CMAKE_CURRENT_LIST_DIR}/user)
 set(LGFX_ROOT ${USER_CODE_ROOT}/LovyanGFX)
 
-list(APPEND INCLUDE_DIRS ${LGFX_ROOT}/src ${USER_CODE_ROOT})
+list(APPEND INCLUDE_DIRS 
+            ${LGFX_ROOT}/src 
+            ${USER_CODE_ROOT}/screen/driver
+            ${USER_CODE_ROOT}/screen/port_esp_panel
+            ${USER_CODE_ROOT}/view/eye
+            ${USER_CODE_ROOT}/view/eye/src
+            )
 message(STATUS "LovyanGFX path = ${LGFX_ROOT}")
 file(GLOB_RECURSE SRCS
      ${LGFX_ROOT}/src/lgfx/Fonts/efont/*.c
@@ -729,6 +735,10 @@ file(GLOB_RECURSE SRCS
      ${LGFX_ROOT}/src/lgfx/v1/platforms/esp32s2/*.cpp
      ${LGFX_ROOT}/src/lgfx/v1/platforms/esp32s3/*.cpp
      ${LGFX_ROOT}/src/lgfx/v1/touch/*.cpp
+     ${USER_CODE_ROOT}/screen/driver/*.cpp
+     ${USER_CODE_ROOT}/screen/port_esp_panel/*.cpp
+     ${USER_CODE_ROOT}/view/eye/src/*.cpp
+     ${USER_CODE_ROOT}/view/eye/*.cpp
      )
 list(APPEND SOURCES ${SRCS})
 
