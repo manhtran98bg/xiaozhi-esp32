@@ -54,3 +54,6 @@ void Display::SetTheme(Theme* theme) {
 void Display::SetPowerSaveMode(bool on) {
     ESP_LOGW(TAG, "SetPowerSaveMode: %d", on);
 }
+void Display::SetHide(bool hide) {
+    ESP_LOGI(TAG, "SetHide: %d", hide);
+}

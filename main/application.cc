@@ -253,6 +253,7 @@ void Application::Run() {
                 SystemInfo::PrintHeapStats();
             }
         }
+        vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
 
@@ -806,6 +807,7 @@ void Application::HandleStateChangedEvent() {
         case kDeviceStateIdle:
             display->SetStatus(Lang::Strings::STANDBY);
             display->SetEmotion("neutral");
+            display->SetHide(true);
             audio_service_.EnableVoiceProcessing(false);
             audio_service_.EnableWakeWordDetection(true);
             break;
@@ -815,6 +817,7 @@ void Application::HandleStateChangedEvent() {
             display->SetChatMessage("system", "");
             break;
         case kDeviceStateListening:
+            display->SetHide(false);
             display->SetStatus(Lang::Strings::LISTENING);
             display->SetEmotion("neutral");
 

@@ -74,6 +74,7 @@ void Face::DoBlink()
 
 void Face::Update()
 {
+	// ESP_LOGI("Face", "Start Update");
 	if (RandomBehavior)
 		Behavior.Update();
 	if (RandomLook)
@@ -81,6 +82,7 @@ void Face::Update()
 	if (RandomBlink)
 		Blink.Update();
 	Draw();
+	// ESP_LOGI("Face", "Update Done");
 }
 
 void Face::Draw()

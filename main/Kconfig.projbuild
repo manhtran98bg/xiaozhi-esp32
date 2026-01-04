@@ -447,6 +447,9 @@ choice BOARD_TYPE
     config BOARD_TYPE_ESP32C3_CUSTOM_BOARD
         bool "ESP32-C3 Custom Board"
         depends on IDF_TARGET_ESP32C3
+    config BOARD_TYPE_ESP32S3_CUSTOM_BOARD
+        bool "ESP32-S3 Custom Board"
+        depends on IDF_TARGET_ESP32S3
 endchoice
 
 choice

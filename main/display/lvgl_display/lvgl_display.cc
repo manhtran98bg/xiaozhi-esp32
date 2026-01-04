@@ -215,6 +215,7 @@ void LvglDisplay::SetPowerSaveMode(bool on) {
     }
 }
 
+
 bool LvglDisplay::SnapshotToJpeg(std::string& jpeg_data, int quality) {
 #if CONFIG_LV_USE_SNAPSHOT
     DisplayLockGuard lock(this);

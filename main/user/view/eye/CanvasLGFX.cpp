@@ -4,6 +4,7 @@
 #include "DisplayBackend.hpp"
 
 #include "esp_log.h"
+#include "ScreenDriver.h"
 
 static const char *TAG = "CanvasLGFX";
 CanvasLGFX::CanvasLGFX(ICanvasManager *canvasManager, int id)
@@ -69,7 +70,7 @@ void CanvasLGFX::clear(uint16_t color)
         ESP_LOGI(TAG, "canvas is null");
         return;
     }
-    canvas->fillScreen(color);
+    canvas->fillSprite(color);
 }
 
 void CanvasLGFX::push(int x, int y)
@@ -80,7 +81,9 @@ void CanvasLGFX::push(int x, int y)
         ESP_LOGI(TAG, "canvas is null");
         return;
     }
+    Screen.lock();
     canvas->pushSprite(x, y);
+    Screen.unlock();
 }
 
 int32_t CanvasLGFX::width() const

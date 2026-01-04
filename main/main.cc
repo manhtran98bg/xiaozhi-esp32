@@ -21,6 +21,57 @@ ICanvasManager *canvasManager = new CanvasManagerLGFX();
 Face *face;
 ICanvas *canvas;
 
+void list_all_tasks(void)
+{
+    UBaseType_t taskCount = uxTaskGetNumberOfTasks();
+
+    // Cấp phát mảng lưu trạng thái task
+    TaskStatus_t *taskStatusArray = (TaskStatus_t *)pvPortMalloc(
+        taskCount * sizeof(TaskStatus_t)
+    );
+
+    if (taskStatusArray == NULL) {
+        ESP_LOGE(TAG, "Malloc failed");
+        return;
+    }
+
+    uint32_t totalRunTime;
+    taskCount = uxTaskGetSystemState(
+        taskStatusArray,
+        taskCount,
+        &totalRunTime
+    );
+
+    ESP_LOGI(TAG, "------------------------------------------------");
+    ESP_LOGI(TAG, "Task Name         | State | Prio | Core | Stack");
+    ESP_LOGI(TAG, "------------------------------------------------");
+
+    for (int i = 0; i < taskCount; i++) {
+        const char *state;
+
+        switch (taskStatusArray[i].eCurrentState) {
+        case eRunning:   state = "RUN"; break;
+        case eReady:     state = "RDY"; break;
+        case eBlocked:   state = "BLK"; break;
+        case eSuspended: state = "SUS"; break;
+        case eDeleted:   state = "DEL"; break;
+        default:         state = "UNK"; break;
+        }
+
+        ESP_LOGI(TAG,
+            "%-16s | %-5s | %u | %lu",
+            taskStatusArray[i].pcTaskName,
+            state,
+            (unsigned int)taskStatusArray[i].uxCurrentPriority,
+            taskStatusArray[i].usStackHighWaterMark
+        );
+    }
+
+    ESP_LOGI(TAG, "------------------------------------------------");
+
+    vPortFree(taskStatusArray);
+}
+
 static void face_task(void *pvParameters)
 {
     while (1)
@@ -43,19 +94,21 @@ extern "C" void app_main(void)
     // Screen.begin();
     // Screen.getPanel()->fillScreen(TFT_BROWN);
     // Screen.getPanel()->setBrightness(255);
-    // int id = canvasManager->createCanvas(240, 240, 1);
-	// if (id == -1)
-	// {
-	// 	ESP_LOGI(TAG, "Create canvas failed");
-	// 	return;
-	// }
-	// canvas = canvasManager->getCanvasWrapper(id);
-	// if (canvas)
-	// {
-	// 	face = new Face(canvas, 50, 240, 240, BLACK, YELLOW);
-	// }
-    // xTaskCreate(face_task, "face_task", 4096, NULL, 5, NULL);
+
     auto& app = Application::GetInstance();
     app.Initialize();
+    int id = canvasManager->createCanvas(128, 64, 1);
+	if (id == -1)
+	{
+		ESP_LOGI(TAG, "Create canvas failed");
+		return;
+	}
+	canvas = canvasManager->getCanvasWrapper(id);
+	if (canvas)
+	{
+		face = new Face(canvas, 50, 240, 240, WHITE, BLACK);
+	}
+    xTaskCreate(face_task, "face_task", 4096, NULL, 24, NULL);
+    list_all_tasks();
     app.Run();  // This function runs the main event loop and never returns
 }

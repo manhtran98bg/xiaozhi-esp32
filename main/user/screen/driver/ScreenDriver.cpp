@@ -17,6 +17,10 @@ static PanelGc9a01 &GetTFT()
 ScreenDriver::ScreenDriver()
 {
     _panel = &GetTFT();
+    _gfxMutex = xSemaphoreCreateRecursiveMutex();
+    if (_gfxMutex == nullptr) {
+        ESP_LOGE(TAG, "Failed to create gfx mutex");
+    }
 }
 
 void ScreenDriver::begin()
@@ -27,12 +31,23 @@ void ScreenDriver::begin()
     _panel->fillScreen(BLACK);
 
 }
+void ScreenDriver::lock()
+{
+    xSemaphoreTakeRecursive(_gfxMutex, portMAX_DELAY);
+}
+
+void ScreenDriver::unlock()
+{
+    xSemaphoreGiveRecursive(_gfxMutex);
+}
 
 //===== Draw functions ==================================================
 
 void ScreenDriver::drawRect(uint16_t *data, int16_t x, int16_t y, int16_t w, int16_t h)
 {
+    lock();
     _panel->pushImageDMA(x, y, w, h, data);
+    unlock();
 }
 
 void ScreenDriver::drawRegion(uint16_t *data, int16_t x1, int16_t y1, int16_t x2, int16_t y2)

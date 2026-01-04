@@ -20,6 +20,7 @@ protected:
     esp_lcd_panel_handle_t panel_ = nullptr;
     
     lv_draw_buf_t draw_buf_;
+    lv_obj_t * screen = nullptr;
     lv_obj_t* top_bar_ = nullptr;
     lv_obj_t* status_bar_ = nullptr;
     lv_obj_t* content_ = nullptr;
@@ -50,12 +51,13 @@ public:
     virtual void SetEmotion(const char* emotion) override;
     virtual void SetChatMessage(const char* role, const char* content) override; 
     virtual void SetPreviewImage(std::unique_ptr<LvglImage> image) override;
-
+    
     // Add theme switching function
     virtual void SetTheme(Theme* theme) override;
     
     // Set whether to hide chat messages/subtitles
     void SetHideSubtitle(bool hide);
+    void SetHide(bool hide) override;
 };
 
 // SPI LCD display

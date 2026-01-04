@@ -14,7 +14,7 @@ public:
         int h = 0;
         int format = 0;
     };
-
+    
     virtual int createCanvas(int width, int height, int colorFormat ) = 0;
     virtual void deleteCanvas(int id) = 0;
     virtual void* getCanvas(int id) = 0;
