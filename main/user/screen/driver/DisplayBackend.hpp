@@ -4,12 +4,14 @@
 
 #include <LovyanGFX.hpp>
 
-#define LCD_DC    20
-#define LCD_SDA   9
-#define LCD_SCLK  10
-#define LCD_CS    -1
-#define LCD_RST   8
-#define LCD_BL    7
+#define LCD_DC    GPIO_NUM_5
+#define LCD_SDA   GPIO_NUM_3
+#define LCD_SCLK  GPIO_NUM_4
+#define LCD_CS    GPIO_NUM_NC
+#define LCD_RST   GPIO_NUM_2
+#define LCD_BL    GPIO_NUM_1
+
+
 
 #define LCD_WIDTH 240
 #define LCD_HEIGHT 240
