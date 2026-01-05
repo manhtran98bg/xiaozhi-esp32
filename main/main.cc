@@ -25,7 +25,6 @@ void list_all_tasks(void)
 {
     UBaseType_t taskCount = uxTaskGetNumberOfTasks();
 
-    // Cấp phát mảng lưu trạng thái task
     TaskStatus_t *taskStatusArray = (TaskStatus_t *)pvPortMalloc(
         taskCount * sizeof(TaskStatus_t)
     );
@@ -97,18 +96,18 @@ extern "C" void app_main(void)
 
     auto& app = Application::GetInstance();
     app.Initialize();
-    int id = canvasManager->createCanvas(128, 64, 1);
-	if (id == -1)
-	{
-		ESP_LOGI(TAG, "Create canvas failed");
-		return;
-	}
-	canvas = canvasManager->getCanvasWrapper(id);
-	if (canvas)
-	{
-		face = new Face(canvas, 50, 240, 240, WHITE, BLACK);
-	}
-    xTaskCreate(face_task, "face_task", 4096, NULL, 24, NULL);
-    list_all_tasks();
+    // int id = canvasManager->createCanvas(128, 64, 1);
+	// if (id == -1)
+	// {
+	// 	ESP_LOGI(TAG, "Create canvas failed");
+	// 	return;
+	// }
+	// canvas = canvasManager->getCanvasWrapper(id);
+	// if (canvas)
+	// {
+	// 	face = new Face(canvas, 50, 240, 240, WHITE, BLACK);
+	// }
+    // xTaskCreate(face_task, "face_task", 4096, NULL, 24, NULL);
+    // list_all_tasks();
     app.Run();  // This function runs the main event loop and never returns
 }

@@ -63,7 +63,7 @@ OledDisplay::OledDisplay(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handl
         },
         .flags = {
             .buff_dma = 1,
-            .buff_spiram = 0,
+            .buff_spiram = 1,
             .sw_rotate = 0,
             .full_refresh = 0,
             .direct_mode = 0,

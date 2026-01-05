@@ -146,6 +146,10 @@ void SystemInfo::PrintTaskList() {
 
 void SystemInfo::PrintHeapStats() {
     int free_sram = heap_caps_get_free_size(MALLOC_CAP_INTERNAL);
+    int free_psram = 0;
+    if (CONFIG_SPIRAM) {
+        free_psram = heap_caps_get_free_size(MALLOC_CAP_SPIRAM);
+    }
     int min_free_sram = heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL);
-    // ESP_LOGI(TAG, "free sram: %u minimal sram: %u", free_sram, min_free_sram);
+    ESP_LOGI(TAG, "free sram: %u, free psram: %u, minimal sram: %u", free_sram, free_psram, min_free_sram);
 }
