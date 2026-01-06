@@ -13,12 +13,14 @@
 #include "CanvasLvgl.h"
 #include "CanvasManagerLvgl.h"
 #include "RoboEye.h"
+#include "lvgl.h"
 #define TAG "main"
-
 
 ICanvasManager *canvasManager = new CanvasManagerLvgl();
 ICanvas *canvas;
 RoboEyes *eye;
+
+
 void list_all_tasks(void)
 {
     UBaseType_t taskCount = uxTaskGetNumberOfTasks();
@@ -73,8 +75,9 @@ static void face_task(void *pvParameters)
 {
     while (1)
     {
-        eye->update();
-        vTaskDelay(pdMS_TO_TICKS(20));
+        int mood = esp_random() % 4;
+        eye->setMood(mood);
+        vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }
 extern "C" void app_main(void)
@@ -94,24 +97,31 @@ extern "C" void app_main(void)
 
     auto& app = Application::GetInstance();
     app.Initialize();
-    int id = canvasManager->createCanvas(128, 64, 1);
-	if (id == -1)
-	{
-		ESP_LOGI(TAG, "Create canvas failed");
-		return;
-	}
-	canvas = canvasManager->getCanvasWrapper(id);
-	if (canvas)
-	{
-		// face = new Face(canvas, 50, 128, 64, 0, 1);
-        eye = new RoboEyes(canvas);
-        eye->begin(128, 64, 60);
-        // canvas->drawFillRectangle(0, 0, 20,20, 1);
-        // canvas->drawLine(0, 30, 20, 30, 1);
-        // canvas->drawFillTriangle(50, 0, 70, 0, 60, 20, 1);
-        // canvas->push(0,0);
-	}
+    eye = new RoboEyes();
+    eye->begin(128, 64, 60);
+    eye->setWidth(25, 25);
+    eye->setHeight(25, 25);
+    eye->setMood(HAPPY);
+    eye->setAutoblinker(true, 2, 1);
+    // int id = canvasManager->createCanvas(128, 64, 1);
+	// if (id == -1)
+	// {
+	// 	ESP_LOGI(TAG, "Create canvas failed");
+	// 	return;
+	// }
+	// canvas = canvasManager->getCanvasWrapper(id);
+	// if (canvas)
+	// {
+	// 	// face = new Face(canvas, 50, 128, 64, 0, 1);
+    //     // eye = new RoboEyes(canvas);
+    //     // eye->begin(128, 64, 60);
+    //     // canvas->drawFillRectangle(0, 0, 20,20, 1);
+    //     // canvas->drawLine(0, 30, 20, 30, 1);
+    //     // canvas->drawFillTriangle(50, 0, 70, 0, 60, 20, 1);
+    //     // canvas->push(0,0);
+	// }
     xTaskCreate(face_task, "face_task", 4096, NULL, 24, NULL);
+    // lv_example_event_draw();
     list_all_tasks();
     app.Run();  // This function runs the main event loop and never returns
 }

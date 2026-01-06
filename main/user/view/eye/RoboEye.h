@@ -10,6 +10,8 @@
 #include "esp_log.h"
 #include "esp_system.h"
 
+#include "lvgl.h"
+
 #define esp_random() (rand() % UINT32_MAX)
 
 #define RANDOM_RANGE(min, max) \
@@ -21,7 +23,6 @@
 typedef uint8_t byte;
 
 // Display colors
-
 
 // For mood type switch
 #define DEFAULT 0
@@ -47,10 +48,7 @@ typedef uint8_t byte;
 class RoboEyes
 {
 public:
-    RoboEyes(ICanvas *canvas);
-
-    ICanvas *_canvas;
-
+    RoboEyes();
     // For general setup - screen size and max. frame rate
     int screenWidth = 128;      // OLED display width, in pixels
     int screenHeight = 64;      // OLED display height, in pixels
@@ -127,7 +125,7 @@ public:
     byte eyelidsHappyBottomOffset = 0;
     byte eyelidsHappyBottomOffsetNext = 0;
     // Space between eyes
-    
+
     int spaceBetweenCurrent = spaceBetweenDefault;
     int spaceBetweenNext = 10;
 
@@ -197,10 +195,10 @@ public:
     float sweat3Height = 2;
     float sweat3Width = 1;
 
-    void update();
+    void update(lv_layer_t *layer);
+    void drawEyes(lv_obj_t *obj, lv_layer_t *layer);
     void begin(int width, int height, byte frameRate);
 
-private:
     void setFramerate(byte fps);
     void setDisplayColors(uint8_t background, uint8_t main);
     void setWidth(byte leftEye, byte rightEye);
@@ -231,7 +229,20 @@ private:
     void blink(bool left, bool right);
     void anim_confused();
     void anim_laugh();
-    void drawEyes();
+private:
+    void drawFillRectangle(lv_obj_t* obj, lv_layer_t *layer, int32_t x0, int32_t y0,
+                           int32_t w, int32_t h,
+                           uint16_t color);
+    void drawFillRectangleRound(lv_obj_t* obj, lv_layer_t *layer, int32_t x0, int32_t y0,
+                                int32_t w, int32_t h, int32_t radius,
+                                uint16_t color);
+    void drawFillTriangle(lv_obj_t* obj,lv_layer_t *layer, int32_t x0, int32_t y0,
+                          int32_t x1, int32_t y1,
+                          int32_t x2, int32_t y2,
+                          uint16_t color);
+    void drawLine(lv_obj_t *obj, lv_layer_t *layer, int32_t x0, int32_t y0,
+                  int32_t x1, int32_t y1, uint16_t color);
+    // void drawEventCallback(lv_event_t * e);
 
 }; // end of class roboEyes
 
