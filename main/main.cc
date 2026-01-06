@@ -9,18 +9,16 @@
 
 #include "application.h"
 #include "system_info.h"
-#include "Face.h"
 #include "ScreenDriver.h"
-#include "CanvasLGFX.h"
-#include "CanvasManagerLGFX.h"
-
+#include "CanvasLvgl.h"
+#include "CanvasManagerLvgl.h"
+#include "RoboEye.h"
 #define TAG "main"
 
 
-ICanvasManager *canvasManager = new CanvasManagerLGFX();
-Face *face;
+ICanvasManager *canvasManager = new CanvasManagerLvgl();
 ICanvas *canvas;
-
+RoboEyes *eye;
 void list_all_tasks(void)
 {
     UBaseType_t taskCount = uxTaskGetNumberOfTasks();
@@ -75,7 +73,7 @@ static void face_task(void *pvParameters)
 {
     while (1)
     {
-        face->Update();
+        eye->update();
         vTaskDelay(pdMS_TO_TICKS(20));
     }
 }
@@ -96,18 +94,24 @@ extern "C" void app_main(void)
 
     auto& app = Application::GetInstance();
     app.Initialize();
-    // int id = canvasManager->createCanvas(128, 64, 1);
-	// if (id == -1)
-	// {
-	// 	ESP_LOGI(TAG, "Create canvas failed");
-	// 	return;
-	// }
-	// canvas = canvasManager->getCanvasWrapper(id);
-	// if (canvas)
-	// {
-	// 	face = new Face(canvas, 50, 240, 240, WHITE, BLACK);
-	// }
-    // xTaskCreate(face_task, "face_task", 4096, NULL, 24, NULL);
-    // list_all_tasks();
+    int id = canvasManager->createCanvas(128, 64, 1);
+	if (id == -1)
+	{
+		ESP_LOGI(TAG, "Create canvas failed");
+		return;
+	}
+	canvas = canvasManager->getCanvasWrapper(id);
+	if (canvas)
+	{
+		// face = new Face(canvas, 50, 128, 64, 0, 1);
+        eye = new RoboEyes(canvas);
+        eye->begin(128, 64, 60);
+        // canvas->drawFillRectangle(0, 0, 20,20, 1);
+        // canvas->drawLine(0, 30, 20, 30, 1);
+        // canvas->drawFillTriangle(50, 0, 70, 0, 60, 20, 1);
+        // canvas->push(0,0);
+	}
+    xTaskCreate(face_task, "face_task", 4096, NULL, 24, NULL);
+    list_all_tasks();
     app.Run();  // This function runs the main event loop and never returns
 }

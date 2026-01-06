@@ -4,14 +4,16 @@
 
 class ICanvasManager;
 
-class CanvasLGFX : public ICanvas {
+class CanvasLvgl : public ICanvas {
 public:
-    CanvasLGFX(ICanvasManager *canvasManager, int id);
+    CanvasLvgl(ICanvasManager *canvasManager, int id);
 
     void drawFillRectangle(int32_t x0, int32_t y0,
                        int32_t x1, int32_t y1,
                        uint16_t color) override;
-
+    void drawFillRectangleRound(int32_t x0, int32_t y0,
+                       int32_t x1, int32_t y1, int32_t radius,
+                       uint16_t color) override;
     void drawFillTriangle(int32_t x0, int32_t y0,
                       int32_t x1, int32_t y1,
                       int32_t x2, int32_t y2,
@@ -34,5 +36,9 @@ public:
 
 private:
     ICanvasManager *_canvasManager;
+    int32_t _clip_l = 0, _clip_r = -1, _clip_t = 0, _clip_b = -1;
     int _id;
+    uint16_t _fgColor565 = 0xFFFF;  //White 
+    uint16_t _bgColor565 = 0x0000;  //Black
+    bool clipping(int32_t &x, int32_t &y, int32_t &w, int32_t &h);
 };

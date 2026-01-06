@@ -5,6 +5,9 @@ class ICanvas
 {
 public:
     virtual void drawFillRectangle(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint16_t color) = 0;
+    virtual void drawFillRectangleRound(int32_t x0, int32_t y0,
+                       int32_t x1, int32_t y1, int32_t radius,
+                       uint16_t color) = 0;
     virtual void drawFillTriangle(int32_t x0, int32_t y0,
                               int32_t x1, int32_t y1,
                               int32_t x2, int32_t y2,

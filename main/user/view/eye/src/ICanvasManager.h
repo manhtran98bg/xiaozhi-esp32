@@ -20,6 +20,7 @@ public:
     virtual void* getCanvas(int id) = 0;
     virtual int getWidth(int id) = 0;
     virtual int getHeight(int id) = 0;
+    virtual void* getCanvasBuffer(int id) = 0;
     virtual ICanvas* getCanvasWrapper(int id) = 0;
     virtual ~ICanvasManager() {}
 };

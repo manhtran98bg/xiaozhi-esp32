@@ -5,13 +5,13 @@
 // forward declare
 class ICanvas;
 
-class CanvasManagerLGFX : public ICanvasManager
+class CanvasManagerLvgl : public ICanvasManager
 {
 public:
     static constexpr int MAX_CANVAS = 2;
 
-    CanvasManagerLGFX();
-    ~CanvasManagerLGFX() override;
+    CanvasManagerLvgl();
+    ~CanvasManagerLvgl() override;
 
     int  createCanvas(int width, int height, int colorFormat ) override;
     void deleteCanvas(int id) override;
@@ -19,7 +19,7 @@ public:
     void* getCanvas(int id) override;  
     int   getWidth(int id) override;
     int   getHeight(int id) override;
-
+    void* getCanvasBuffer(int id) override;
     ICanvas* getCanvasWrapper(int id) override;
 
 private:
