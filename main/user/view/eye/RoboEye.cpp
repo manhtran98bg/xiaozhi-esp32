@@ -114,10 +114,7 @@ void RoboEyes::drawFillTriangle(lv_obj_t *obj, lv_layer_t *layer, int32_t x0, in
     triangle_dsc.p[2].y = y2;
     lv_draw_triangle(layer, &triangle_dsc);
 }
-void RoboEyes::drawLine(lv_obj_t *obj, lv_layer_t *layer, int32_t x0, int32_t y0,
-                        int32_t x1, int32_t y1, uint16_t color)
-{
-}
+
 void RoboEyes::setFramerate(byte fps)
 {
     frameInterval = 1000 / fps;

@@ -240,10 +240,6 @@ private:
                           int32_t x1, int32_t y1,
                           int32_t x2, int32_t y2,
                           uint16_t color);
-    void drawLine(lv_obj_t *obj, lv_layer_t *layer, int32_t x0, int32_t y0,
-                  int32_t x1, int32_t y1, uint16_t color);
-    // void drawEventCallback(lv_event_t * e);
-
 }; // end of class roboEyes
 
 #endif
