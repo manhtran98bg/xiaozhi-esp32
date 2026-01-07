@@ -47,7 +47,11 @@ void RoboEyes::begin(int width, int height, byte frameRate)
     lv_obj_center(cont);
     lv_obj_add_event_cb(cont, drawEventCallback, LV_EVENT_DRAW_TASK_ADDED, NULL);
     lv_obj_add_flag(cont, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
-    lv_timer_create(eyeTimerCallback, 30, cont);
+    lv_timer_create(eyeTimerCallback, frameInterval, cont);
+    lv_area_t base;
+    lv_obj_get_coords(cont,  &base);
+    baseX = base.x1;
+    baseY = base.y1;
 }
 
 void RoboEyes::update(lv_layer_t *layer)
@@ -61,21 +65,7 @@ void RoboEyes::drawFillRectangle(lv_obj_t *obj, lv_layer_t *layer, int32_t x0, i
                                  int32_t w, int32_t h,
                                  uint16_t color)
 {
-    if (color == 0)
-        rect_dsc.bg_color = lv_color_white();
-    else if (color == 1)
-        rect_dsc.bg_color = lv_color_black();
-    rect_dsc.radius = 0;
-    lv_area_t area;
-    area.x1 = x0;
-    area.y1 = y0;
-    area.x2 = x0 + w - 1;
-    area.y2 = y0 + h - 1;
-    // lv_area_t obj_coords;
-    // lv_obj_get_coords(obj, &obj_coords);
-    // lv_area_align(&obj_coords, &area, LV_ALIGN_CENTER, 0, 0);
-    // lv_draw_rect(layer, &rect_dsc, &area);
-    lv_draw_rect(layer, &rect_dsc, &area);
+    drawFillRectangleRound(obj, layer, x0, y0, w, h, 0, 1);
 }
 void RoboEyes::drawFillRectangleRound(lv_obj_t *obj, lv_layer_t *layer, int32_t x0, int32_t y0,
                                       int32_t w, int32_t h, int32_t radius,
@@ -87,13 +77,10 @@ void RoboEyes::drawFillRectangleRound(lv_obj_t *obj, lv_layer_t *layer, int32_t 
         rect_dsc.bg_color = lv_color_black();
     rect_dsc.radius = radius;
     lv_area_t area;
-    area.x1 = x0;
-    area.y1 = y0;
-    area.x2 = x0 + w - 1 ;
-    area.y2 = y0 + h - 1;
-    // lv_area_t obj_coords;
-    // lv_obj_get_coords(obj, &obj_coords);
-    // lv_area_align(&obj_coords, &area, LV_ALIGN_CENTER, 0, 0);
+    area.x1 = x0 + baseX;
+    area.y1 = y0 + baseY;
+    area.x2 = x0 + baseX + w - 1;
+    area.y2 = y0 + baseY + h - 1;
     lv_draw_rect(layer, &rect_dsc, &area);
 }
 void RoboEyes::drawFillTriangle(lv_obj_t *obj, lv_layer_t *layer, int32_t x0, int32_t y0,
@@ -106,12 +93,12 @@ void RoboEyes::drawFillTriangle(lv_obj_t *obj, lv_layer_t *layer, int32_t x0, in
     else if (color == 1)
         triangle_dsc.color = lv_color_black();
     line_dsc.width = 1;
-    triangle_dsc.p[0].x = x0;
-    triangle_dsc.p[0].y = y0;
-    triangle_dsc.p[1].x = x1;
-    triangle_dsc.p[1].y = y1;
-    triangle_dsc.p[2].x = x2;
-    triangle_dsc.p[2].y = y2;
+    triangle_dsc.p[0].x = x0 + baseX;
+    triangle_dsc.p[0].y = y0 + baseY;
+    triangle_dsc.p[1].x = x1 + baseX;
+    triangle_dsc.p[1].y = y1 + baseY;
+    triangle_dsc.p[2].x = x2 + baseX;
+    triangle_dsc.p[2].y = y2 + baseY;
     lv_draw_triangle(layer, &triangle_dsc);
 }
 

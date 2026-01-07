@@ -2,9 +2,6 @@
 #ifndef _FLUXGARAGE_ROBOEYES_H
 #define _FLUXGARAGE_ROBOEYES_H
 #include "stdint.h"
-
-#include "ICanvas.h"
-#include "ICanvasManager.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
@@ -12,13 +9,6 @@
 
 #include "lvgl.h"
 
-#define esp_random() (rand() % UINT32_MAX)
-
-#define RANDOM_RANGE(min, max) \
-    ((int)(esp_random() % ((max) - (min)) + (min)))
-
-#define RANDOM(c) \
-    ((int)((c) > 0 ? (esp_random() % (c)) : 0))
 
 typedef uint8_t byte;
 
@@ -230,6 +220,8 @@ public:
     void anim_confused();
     void anim_laugh();
 private:
+    int baseX = 0;
+    int baseY = 0;
     void drawFillRectangle(lv_obj_t* obj, lv_layer_t *layer, int32_t x0, int32_t y0,
                            int32_t w, int32_t h,
                            uint16_t color);
