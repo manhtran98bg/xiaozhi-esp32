@@ -726,7 +726,6 @@ list(APPEND INCLUDE_DIRS
             ${USER_CODE_ROOT}/screen/driver
             ${USER_CODE_ROOT}/screen/port_esp_panel
             ${USER_CODE_ROOT}/view/eye
-            ${USER_CODE_ROOT}/view/eye/src
             )
 message(STATUS "LovyanGFX path = ${LGFX_ROOT}")
 file(GLOB_RECURSE SRCS
@@ -744,7 +743,6 @@ file(GLOB_RECURSE SRCS
      ${LGFX_ROOT}/src/lgfx/v1/touch/*.cpp
      ${USER_CODE_ROOT}/screen/driver/*.cpp
      ${USER_CODE_ROOT}/screen/port_esp_panel/*.cpp
-     ${USER_CODE_ROOT}/view/eye/src/*.cpp
      ${USER_CODE_ROOT}/view/eye/*.cpp
      )
 list(APPEND SOURCES ${SRCS})

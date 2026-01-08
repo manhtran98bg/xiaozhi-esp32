@@ -6,13 +6,16 @@
 #include <esp_lcd_panel_io.h>
 #include <esp_lcd_panel_ops.h>
 
+#include "RoboEye.h"
 
 class OledDisplay : public LvglDisplay {
 private:
     esp_lcd_panel_io_handle_t panel_io_ = nullptr;
     esp_lcd_panel_handle_t panel_ = nullptr;
+    RoboEyes* eye_ = nullptr;
     lv_obj_t* screen_main_ = nullptr;
     lv_obj_t* screen_aux_ = nullptr;
+    lv_obj_t* eye_container_ = nullptr;
     lv_obj_t* top_bar_ = nullptr;
     lv_obj_t* status_bar_ = nullptr;
     lv_obj_t* content_ = nullptr;
@@ -23,6 +26,9 @@ private:
     lv_obj_t *emotion_label_ = nullptr;
     lv_obj_t* chat_message_label_ = nullptr;
 
+    lv_draw_rect_dsc_t rect_dsc_;
+    lv_draw_triangle_dsc_t triangle_dsc_;
+    
     virtual bool Lock(int timeout_ms = 0) override;
     virtual void Unlock() override;
 

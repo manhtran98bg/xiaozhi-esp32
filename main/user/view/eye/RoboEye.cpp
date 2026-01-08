@@ -5,6 +5,8 @@ static lv_draw_rect_dsc_t rect_dsc;
 static lv_draw_triangle_dsc_t triangle_dsc;
 static lv_draw_line_dsc_t line_dsc;
 static bool eyeUpdate = false;
+
+
 static void eyeTimerCallback(lv_timer_t *timer)
 {
     lv_obj_invalidate((lv_obj_t *)lv_timer_get_user_data(timer));

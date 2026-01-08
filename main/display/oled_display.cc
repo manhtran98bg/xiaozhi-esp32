@@ -75,7 +75,7 @@ OledDisplay::OledDisplay(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handl
         ESP_LOGE(TAG, "Failed to add display");
         return;
     }
-
+    eye_ = new RoboEyes();
     if (height_ == 64) {
         SetupUI_128x64();
     } else {
@@ -285,50 +285,12 @@ void OledDisplay::SetupUI_128x64() {
     lv_obj_add_flag(low_battery_popup_, LV_OBJ_FLAG_HIDDEN);
 
     screen_aux_ =  lv_obj_create(NULL);
-    // auto label = lv_label_create(screen_aux_);
-    // lv_obj_center(label);
-    // lv_label_set_text(label, "Screen aux");
-
-    // //Test canvas
-    // LV_DRAW_BUF_DEFINE_STATIC(draw_buf_16bpp, 100, 50, LV_COLOR_FORMAT_RGB565);
-    // LV_DRAW_BUF_INIT_STATIC(draw_buf_16bpp);
-    // lv_obj_t * canvas = lv_canvas_create(screen_aux_);
-    // lv_canvas_set_draw_buf(canvas, &draw_buf_16bpp);
-    // lv_obj_center(canvas);
-    // lv_canvas_fill_bg(canvas, lv_palette_lighten(LV_PALETTE_GREY, 3), LV_OPA_COVER);
-
-    // lv_layer_t layer;
-    // lv_canvas_init_layer(canvas, &layer);
-    // //Draw rectangle
-    // lv_draw_rect_dsc_t dsc;
-    // lv_draw_rect_dsc_init(&dsc);
-    // dsc.bg_color = lv_color_black();
-    // lv_area_t coords_rect = {0, 0, 30, 30};
-    // // lv_draw_rect(&layer, &dsc, &coords_rect);
-    // //draw triangle
-    // lv_draw_triangle_dsc_t triangle_dsc;
-    // lv_draw_triangle_dsc_init(&triangle_dsc);
-    // triangle_dsc.color = lv_color_black();
-    // triangle_dsc.p[0].x = 0;
-    // triangle_dsc.p[0].y = 0;
-    // triangle_dsc.p[1].x = 30;
-    // triangle_dsc.p[1].y = 0;
-    // triangle_dsc.p[2].x = 30;
-    // triangle_dsc.p[2].y = 30;
-    // lv_draw_triangle(&layer, &triangle_dsc);
-    // //draw line
-    // lv_draw_line_dsc_t line_dsc;
-    // lv_draw_line_dsc_init(&line_dsc);
-    // line_dsc.color = lv_color_black();
-    // line_dsc.width = 4;
-    // line_dsc.p1.x = 45;
-    // line_dsc.p1.y = 0;
-    // line_dsc.p2.x = 45;
-    // line_dsc.p2.y = 50;
-    // lv_draw_line(&layer, &line_dsc);
-
-    // lv_canvas_finish_layer(canvas, &layer);
-    //load Screen
+    eye_container_ = lv_obj_create(screen_aux_);
+    lv_obj_set_size(eye_container_, 128, 64);
+    lv_obj_set_user_data(eye_container_, this);
+    lv_draw_triangle_dsc_init(&triangle_dsc_);
+    lv_draw_rect_dsc_init(&rect_dsc_);
+    
     lv_screen_load(screen_aux_);
 }
 
@@ -419,9 +381,6 @@ void OledDisplay::SetupUI_128x32() {
     lv_obj_set_style_anim_duration(chat_message_label_, lv_anim_speed_clamped(60, 300, 60000), LV_PART_MAIN);
 
     screen_aux_ =  lv_obj_create(NULL);
-    auto label = lv_label_create(screen_aux_);
-    lv_obj_center(label);
-    lv_label_set_text(label, "Screen aux");
 
     //load Screen
     lv_screen_load(screen_aux_);
