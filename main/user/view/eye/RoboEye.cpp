@@ -6,7 +6,6 @@ static lv_draw_triangle_dsc_t triangle_dsc;
 static lv_draw_line_dsc_t line_dsc;
 static bool eyeUpdate = false;
 
-
 static void eyeTimerCallback(lv_timer_t *timer)
 {
     lv_obj_invalidate((lv_obj_t *)lv_timer_get_user_data(timer));
@@ -16,24 +15,21 @@ static void eyeTimerCallback(lv_timer_t *timer)
     }
 }
 
-static void drawEventCallback(lv_event_t *e)
-{
-    lv_obj_t *obj = lv_event_get_target_obj(e);
-    RoboEyes *eyes = (RoboEyes *)lv_obj_get_user_data(obj);
-    lv_draw_task_t *draw_task = lv_event_get_draw_task(e);
-    lv_draw_dsc_base_t *base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
-    if (base_dsc->part == LV_PART_MAIN && eyes && eyeUpdate)
-    {
-        eyes->drawEyes(obj, base_dsc->layer);
-        eyeUpdate = false;
-    }
-}
+// static void drawEventCallback(lv_event_t *e)
+// {
+//     lv_obj_t *obj = lv_event_get_target_obj(e);
+//     RoboEyes *eyes = (RoboEyes *)lv_obj_get_user_data(obj);
+//     lv_draw_task_t *draw_task = lv_event_get_draw_task(e);
+//     lv_draw_dsc_base_t *base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
+//     if (base_dsc->part == LV_PART_MAIN && eyes && eyeUpdate)
+//     {
+//         eyes->drawEyes(obj, base_dsc->layer);
+//         eyeUpdate = false;
+//     }
+// }
 
 RoboEyes::RoboEyes()
 {
-    lv_draw_line_dsc_init(&line_dsc);
-    lv_draw_triangle_dsc_init(&triangle_dsc);
-    lv_draw_rect_dsc_init(&rect_dsc);
 };
 
 void RoboEyes::begin(int width, int height, byte frameRate)
@@ -43,17 +39,6 @@ void RoboEyes::begin(int width, int height, byte frameRate)
     eyeLheightCurrent = 1;   // start with closed eyes
     eyeRheightCurrent = 1;   // start with closed eyes
     setFramerate(frameRate); // calculate frame interval based on defined frameRate
-    lv_obj_t *cont = lv_obj_create(lv_screen_active());
-    lv_obj_set_size(cont, width, height);
-    lv_obj_set_user_data(cont, this);
-    lv_obj_center(cont);
-    lv_obj_add_event_cb(cont, drawEventCallback, LV_EVENT_DRAW_TASK_ADDED, NULL);
-    lv_obj_add_flag(cont, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
-    lv_timer_create(eyeTimerCallback, frameInterval, cont);
-    lv_area_t base;
-    lv_obj_get_coords(cont,  &base);
-    baseX = base.x1;
-    baseY = base.y1;
 }
 
 void RoboEyes::update(lv_layer_t *layer)
@@ -63,45 +48,50 @@ void RoboEyes::update(lv_layer_t *layer)
 
 // Draw functions
 
-void RoboEyes::drawFillRectangle(lv_obj_t *obj, lv_layer_t *layer, int32_t x0, int32_t y0,
+void RoboEyes::onDrawFillRectangle(std::function<void(void *ctx,  int32_t x0, int32_t y0,
+                                            int32_t w, int32_t h,
+                                            uint16_t color)>
+                             callback)
+{
+    on_draw_fill_rectangle_ = callback;
+}
+
+void RoboEyes::onDrawFillRectangleRound(std::function<void(void *ctx, int32_t x0, int32_t y0,
+                                            int32_t w, int32_t h, int32_t radius,
+                                            uint16_t color)>
+                             callback)
+{
+    on_draw_fill_rectangle_round_ = callback;
+}
+
+void RoboEyes::onDrawFillTriangle(std::function<void(void *ctx, int32_t x0, int32_t y0,
+                                               int32_t x1, int32_t y1,
+                                               int32_t x2, int32_t y2,
+                                               uint16_t color)>
+                             callback)
+{
+    on_draw_fill_triangle_ = callback;
+}
+void RoboEyes::drawFillRectangle(void *ctx, int32_t x0, int32_t y0,
                                  int32_t w, int32_t h,
                                  uint16_t color)
 {
-    drawFillRectangleRound(obj, layer, x0, y0, w, h, 0, 1);
+    drawFillRectangleRound(ctx, x0, y0, w, h, 0, 1);
 }
-void RoboEyes::drawFillRectangleRound(lv_obj_t *obj, lv_layer_t *layer, int32_t x0, int32_t y0,
+void RoboEyes::drawFillRectangleRound(void *ctx, int32_t x0, int32_t y0,
                                       int32_t w, int32_t h, int32_t radius,
                                       uint16_t color)
 {
-    if (color == 0)
-        rect_dsc.bg_color = lv_color_white();
-    else if (color == 1)
-        rect_dsc.bg_color = lv_color_black();
-    rect_dsc.radius = radius;
-    lv_area_t area;
-    area.x1 = x0 + baseX;
-    area.y1 = y0 + baseY;
-    area.x2 = x0 + baseX + w - 1;
-    area.y2 = y0 + baseY + h - 1;
-    lv_draw_rect(layer, &rect_dsc, &area);
+    if (on_draw_fill_rectangle_round_)
+        on_draw_fill_rectangle_round_(ctx, x0, y0, w, h, radius, color);
 }
-void RoboEyes::drawFillTriangle(lv_obj_t *obj, lv_layer_t *layer, int32_t x0, int32_t y0,
+void RoboEyes::drawFillTriangle(void *ctx, int32_t x0, int32_t y0,
                                 int32_t x1, int32_t y1,
                                 int32_t x2, int32_t y2,
                                 uint16_t color)
 {
-    if (color == 0)
-        triangle_dsc.color = lv_color_white();
-    else if (color == 1)
-        triangle_dsc.color = lv_color_black();
-    line_dsc.width = 1;
-    triangle_dsc.p[0].x = x0 + baseX;
-    triangle_dsc.p[0].y = y0 + baseY;
-    triangle_dsc.p[1].x = x1 + baseX;
-    triangle_dsc.p[1].y = y1 + baseY;
-    triangle_dsc.p[2].x = x2 + baseX;
-    triangle_dsc.p[2].y = y2 + baseY;
-    lv_draw_triangle(layer, &triangle_dsc);
+    if (on_draw_fill_triangle_)
+        on_draw_fill_triangle_(ctx, x0, y0, x1, y1, x2, y2, color);
 }
 
 void RoboEyes::setFramerate(byte fps)
@@ -387,7 +377,7 @@ void RoboEyes::anim_laugh()
 //  PRE-CALCULATIONS AND ACTUAL DRAWINGS
 //*********************************************************************************************
 
-void RoboEyes::drawEyes(lv_obj_t *obj, lv_layer_t *layer)
+void RoboEyes::drawEyes(void *ctx)
 {
 
     //// PRE-CALCULATIONS - EYE SIZES AND VALUES FOR ANIMATION TWEENINGS ////
@@ -568,10 +558,10 @@ void RoboEyes::drawEyes(lv_obj_t *obj, lv_layer_t *layer)
     //// ACTUAL DRAWINGS ////
 
     // Draw basic eye rectangles
-    drawFillRectangleRound(obj, layer, eyeLx, eyeLy, eyeLwidthCurrent, eyeLheightCurrent, eyeLborderRadiusCurrent, MAINCOLOR); // left eye
+    drawFillRectangleRound(ctx, eyeLx, eyeLy, eyeLwidthCurrent, eyeLheightCurrent, eyeLborderRadiusCurrent, MAINCOLOR); // left eye
     if (!cyclops)
     {
-        drawFillRectangleRound(obj, layer, eyeRx, eyeRy, eyeRwidthCurrent, eyeRheightCurrent, eyeRborderRadiusCurrent, MAINCOLOR); // right eye
+        drawFillRectangleRound(ctx, eyeRx, eyeRy, eyeRwidthCurrent, eyeRheightCurrent, eyeRborderRadiusCurrent, MAINCOLOR); // right eye
     }
 
     // Prepare mood type transitions
@@ -606,36 +596,36 @@ void RoboEyes::drawEyes(lv_obj_t *obj, lv_layer_t *layer)
     eyelidsTiredHeight = (eyelidsTiredHeight + eyelidsTiredHeightNext) / 2;
     if (!cyclops)
     {
-        drawFillTriangle(obj, layer, eyeLx, eyeLy - 1, eyeLx + eyeLwidthCurrent, eyeLy - 1, eyeLx, eyeLy + eyelidsTiredHeight - 1, BGCOLOR);                    // left eye
-        drawFillTriangle(obj, layer, eyeRx, eyeRy - 1, eyeRx + eyeRwidthCurrent, eyeRy - 1, eyeRx + eyeRwidthCurrent, eyeRy + eyelidsTiredHeight - 1, BGCOLOR); // right eye
+        drawFillTriangle(ctx, eyeLx, eyeLy - 1, eyeLx + eyeLwidthCurrent, eyeLy - 1, eyeLx, eyeLy + eyelidsTiredHeight - 1, BGCOLOR);                    // left eye
+        drawFillTriangle(ctx, eyeRx, eyeRy - 1, eyeRx + eyeRwidthCurrent, eyeRy - 1, eyeRx + eyeRwidthCurrent, eyeRy + eyelidsTiredHeight - 1, BGCOLOR); // right eye
     }
     else
     {
         // Cyclops tired eyelids
-        drawFillTriangle(obj, layer, eyeLx, eyeLy - 1, eyeLx + (eyeLwidthCurrent / 2), eyeLy - 1, eyeLx, eyeLy + eyelidsTiredHeight - 1, BGCOLOR);                                       // left eyelid half
-        drawFillTriangle(obj, layer, eyeLx + (eyeLwidthCurrent / 2), eyeLy - 1, eyeLx + eyeLwidthCurrent, eyeLy - 1, eyeLx + eyeLwidthCurrent, eyeLy + eyelidsTiredHeight - 1, BGCOLOR); // right eyelid half
+        drawFillTriangle(ctx, eyeLx, eyeLy - 1, eyeLx + (eyeLwidthCurrent / 2), eyeLy - 1, eyeLx, eyeLy + eyelidsTiredHeight - 1, BGCOLOR);                                       // left eyelid half
+        drawFillTriangle(ctx, eyeLx + (eyeLwidthCurrent / 2), eyeLy - 1, eyeLx + eyeLwidthCurrent, eyeLy - 1, eyeLx + eyeLwidthCurrent, eyeLy + eyelidsTiredHeight - 1, BGCOLOR); // right eyelid half
     }
 
     // Draw angry top eyelids
     eyelidsAngryHeight = (eyelidsAngryHeight + eyelidsAngryHeightNext) / 2;
     if (!cyclops)
     {
-        drawFillTriangle(obj, layer, eyeLx, eyeLy - 1, eyeLx + eyeLwidthCurrent, eyeLy - 1, eyeLx + eyeLwidthCurrent, eyeLy + eyelidsAngryHeight - 1, BGCOLOR); // left eye
-        drawFillTriangle(obj, layer, eyeRx, eyeRy - 1, eyeRx + eyeRwidthCurrent, eyeRy - 1, eyeRx, eyeRy + eyelidsAngryHeight - 1, BGCOLOR);                    // right eye
+        drawFillTriangle(ctx, eyeLx, eyeLy - 1, eyeLx + eyeLwidthCurrent, eyeLy - 1, eyeLx + eyeLwidthCurrent, eyeLy + eyelidsAngryHeight - 1, BGCOLOR); // left eye
+        drawFillTriangle(ctx, eyeRx, eyeRy - 1, eyeRx + eyeRwidthCurrent, eyeRy - 1, eyeRx, eyeRy + eyelidsAngryHeight - 1, BGCOLOR);                    // right eye
     }
     else
     {
         // Cyclops angry eyelids
-        drawFillTriangle(obj, layer, eyeLx, eyeLy - 1, eyeLx + (eyeLwidthCurrent / 2), eyeLy - 1, eyeLx + (eyeLwidthCurrent / 2), eyeLy + eyelidsAngryHeight - 1, BGCOLOR);                    // left eyelid half
-        drawFillTriangle(obj, layer, eyeLx + (eyeLwidthCurrent / 2), eyeLy - 1, eyeLx + eyeLwidthCurrent, eyeLy - 1, eyeLx + (eyeLwidthCurrent / 2), eyeLy + eyelidsAngryHeight - 1, BGCOLOR); // right eyelid half
+        drawFillTriangle(ctx, eyeLx, eyeLy - 1, eyeLx + (eyeLwidthCurrent / 2), eyeLy - 1, eyeLx + (eyeLwidthCurrent / 2), eyeLy + eyelidsAngryHeight - 1, BGCOLOR);                    // left eyelid half
+        drawFillTriangle(ctx, eyeLx + (eyeLwidthCurrent / 2), eyeLy - 1, eyeLx + eyeLwidthCurrent, eyeLy - 1, eyeLx + (eyeLwidthCurrent / 2), eyeLy + eyelidsAngryHeight - 1, BGCOLOR); // right eyelid half
     }
 
     // Draw happy bottom eyelids
     eyelidsHappyBottomOffset = (eyelidsHappyBottomOffset + eyelidsHappyBottomOffsetNext) / 2;
-    drawFillRectangleRound(obj, layer, eyeLx - 1, (eyeLy + eyeLheightCurrent) - eyelidsHappyBottomOffset + 1, eyeLwidthCurrent + 2, eyeLheightDefault, eyeLborderRadiusCurrent, BGCOLOR); // left eye
+    drawFillRectangleRound(ctx, eyeLx - 1, (eyeLy + eyeLheightCurrent) - eyelidsHappyBottomOffset + 1, eyeLwidthCurrent + 2, eyeLheightDefault, eyeLborderRadiusCurrent, BGCOLOR); // left eye
     if (!cyclops)
     {
-        drawFillRectangleRound(obj, layer, eyeRx - 1, (eyeRy + eyeRheightCurrent) - eyelidsHappyBottomOffset + 1, eyeRwidthCurrent + 2, eyeRheightDefault, eyeRborderRadiusCurrent, BGCOLOR); // right eye
+        drawFillRectangleRound(ctx, eyeRx - 1, (eyeRy + eyeRheightCurrent) - eyelidsHappyBottomOffset + 1, eyeRwidthCurrent + 2, eyeRheightDefault, eyeRborderRadiusCurrent, BGCOLOR); // right eye
     }
 
     // Add sweat drops
@@ -664,8 +654,8 @@ void RoboEyes::drawEyes(lv_obj_t *obj, lv_layer_t *layer)
             sweat1Width -= 0.1;
             sweat1Height -= 0.5;
         } // ... and shrinks in second half of animation
-        sweat1XPos = sweat1XPosInitial - (sweat1Width / 2);                                                               // keep the growing shape centered to initial x position
-        drawFillRectangleRound(obj, layer, sweat1XPos, sweat1YPos, sweat1Width, sweat1Height, sweatBorderradius, MAINCOLOR); // draw sweat drop
+        sweat1XPos = sweat1XPosInitial - (sweat1Width / 2);                                                                  // keep the growing shape centered to initial x position
+        drawFillRectangleRound(ctx, sweat1XPos, sweat1YPos, sweat1Width, sweat1Height, sweatBorderradius, MAINCOLOR); // draw sweat drop
 
         // Sweat drop 2 -> center area
         if (sweat2YPos <= sweat2YPosMax)
@@ -690,8 +680,8 @@ void RoboEyes::drawEyes(lv_obj_t *obj, lv_layer_t *layer)
             sweat2Width -= 0.1;
             sweat2Height -= 0.5;
         } // ... and shrinks in second half of animation
-        sweat2XPos = sweat2XPosInitial - (sweat2Width / 2);                                                               // keep the growing shape centered to initial x position
-        drawFillRectangleRound(obj, layer, sweat2XPos, sweat2YPos, sweat2Width, sweat2Height, sweatBorderradius, MAINCOLOR); // draw sweat drop
+        sweat2XPos = sweat2XPosInitial - (sweat2Width / 2);                                                                  // keep the growing shape centered to initial x position
+        drawFillRectangleRound(ctx, sweat2XPos, sweat2YPos, sweat2Width, sweat2Height, sweatBorderradius, MAINCOLOR); // draw sweat drop
 
         // Sweat drop 3 -> right corner
         if (sweat3YPos <= sweat3YPosMax)
@@ -716,8 +706,8 @@ void RoboEyes::drawEyes(lv_obj_t *obj, lv_layer_t *layer)
             sweat3Width -= 0.1;
             sweat3Height -= 0.5;
         } // ... and shrinks in second half of animation
-        sweat3XPos = sweat3XPosInitial - (sweat3Width / 2);                                                               // keep the growing shape centered to initial x position
-        drawFillRectangleRound(obj, layer, sweat3XPos, sweat3YPos, sweat3Width, sweat3Height, sweatBorderradius, MAINCOLOR); // draw sweat drop
+        sweat3XPos = sweat3XPosInitial - (sweat3Width / 2);                                                                  // keep the growing shape centered to initial x position
+        drawFillRectangleRound(ctx, sweat3XPos, sweat3YPos, sweat3Width, sweat3Height, sweatBorderradius, MAINCOLOR); // draw sweat drop
     }
 
 } // end of drawEyes method

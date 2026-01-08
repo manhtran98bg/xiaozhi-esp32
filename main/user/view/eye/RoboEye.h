@@ -9,6 +9,11 @@
 
 #include "lvgl.h"
 
+#include <functional>
+#include <string>
+#include <functional>
+#include <chrono>
+#include <vector>
 
 typedef uint8_t byte;
 
@@ -186,7 +191,7 @@ public:
     float sweat3Width = 1;
 
     void update(lv_layer_t *layer);
-    void drawEyes(lv_obj_t *obj, lv_layer_t *layer);
+    void drawEyes(void *ctx);
     void begin(int width, int height, byte frameRate);
 
     void setFramerate(byte fps);
@@ -219,19 +224,49 @@ public:
     void blink(bool left, bool right);
     void anim_confused();
     void anim_laugh();
+
+    void onDrawFillRectangle(std::function<void(void *ctx, int32_t x0, int32_t y0,
+                                                int32_t w, int32_t h,
+                                                uint16_t color)>
+                                 callback);
+    void onDrawFillRectangleRound(std::function<void(void *ctx, int32_t x0, int32_t y0,
+                                                     int32_t w, int32_t h, int32_t radius,
+                                                     uint16_t color)>
+                                      callback);
+    void onDrawFillTriangle(std::function<void(void *ctx, int32_t x0, int32_t y0,
+                                               int32_t x1, int32_t y1,
+                                               int32_t x2, int32_t y2,
+                                               uint16_t color)>
+                                callback);
+
 private:
     int baseX = 0;
     int baseY = 0;
-    void drawFillRectangle(lv_obj_t* obj, lv_layer_t *layer, int32_t x0, int32_t y0,
+    void drawFillRectangle(void *ctx, int32_t x0, int32_t y0,
                            int32_t w, int32_t h,
                            uint16_t color);
-    void drawFillRectangleRound(lv_obj_t* obj, lv_layer_t *layer, int32_t x0, int32_t y0,
+    void drawFillRectangleRound(void *ctx, int32_t x0, int32_t y0,
                                 int32_t w, int32_t h, int32_t radius,
                                 uint16_t color);
-    void drawFillTriangle(lv_obj_t* obj,lv_layer_t *layer, int32_t x0, int32_t y0,
+    void drawFillTriangle(void *ctx, int32_t x0, int32_t y0,
                           int32_t x1, int32_t y1,
                           int32_t x2, int32_t y2,
                           uint16_t color);
+
+protected:
+    std::function<void(void *ctx, int32_t x0, int32_t y0,
+                       int32_t w, int32_t h,
+                       uint16_t color)>
+        on_draw_fill_rectangle_;
+    std::function<void(void *ctx, int32_t x0, int32_t y0,
+                       int32_t w, int32_t h, int32_t radius,
+                       uint16_t color)>
+        on_draw_fill_rectangle_round_;
+    std::function<void(void *ctx, int32_t x0, int32_t y0,
+                       int32_t x1, int32_t y1,
+                       int32_t x2, int32_t y2,
+                       uint16_t color)>
+        on_draw_fill_triangle_;
 }; // end of class roboEyes
 
 #endif

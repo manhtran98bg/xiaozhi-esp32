@@ -91,14 +91,14 @@ extern "C" void app_main(void)
 
     auto& app = Application::GetInstance();
     app.Initialize();
-    eye = new RoboEyes();
-    eye->begin(128, 64, 60);
-    eye->setWidth(25, 25);
-    eye->setHeight(25, 25);
-    eye->setMood(HAPPY);
-    eye->setAutoblinker(true, 2, 1);
+    // eye = new RoboEyes();
+    // eye->begin(128, 64, 60);
+    // eye->setWidth(25, 25);
+    // eye->setHeight(25, 25);
+    // eye->setMood(HAPPY);
+    // eye->setAutoblinker(true, 2, 1);
 
-    xTaskCreate(face_task, "face_task", 4096, NULL, 24, NULL);
+    // xTaskCreate(face_task, "face_task", 4096, NULL, 24, NULL);
   
     list_all_tasks();
     app.Run();  // This function runs the main event loop and never returns

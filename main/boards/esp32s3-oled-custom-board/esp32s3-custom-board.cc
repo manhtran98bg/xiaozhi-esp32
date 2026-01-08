@@ -1,5 +1,7 @@
 #include "wifi_board.h"
 #include "codecs/es8311_audio_codec.h"
+#include "codecs/dummy_audio_codec.h"
+
 #include "display/lcd_display.h"
 #include "display/oled_display.h"
 #include "application.h"
@@ -70,9 +72,10 @@ private:
             
         }
         ESP_LOGI(TAG, "I2C bus initialized, found codec ES8311 device");
-        audio_codec_ = new Es8311AudioCodec(i2c_bus_, I2C_BUS, AUDIO_INPUT_SAMPLE_RATE, AUDIO_OUTPUT_SAMPLE_RATE,
-            AUDIO_I2S_GPIO_MCLK, AUDIO_I2S_GPIO_BCLK, AUDIO_I2S_GPIO_WS, AUDIO_I2S_GPIO_DOUT, AUDIO_I2S_GPIO_DIN,
-            AUDIO_CODEC_PA_PIN, AUDIO_CODEC_ES8311_ADDR);
+        // audio_codec_ = new Es8311AudioCodec(i2c_bus_, I2C_BUS, AUDIO_INPUT_SAMPLE_RATE, AUDIO_OUTPUT_SAMPLE_RATE,
+        //     AUDIO_I2S_GPIO_MCLK, AUDIO_I2S_GPIO_BCLK, AUDIO_I2S_GPIO_WS, AUDIO_I2S_GPIO_DOUT, AUDIO_I2S_GPIO_DIN,
+        //     AUDIO_CODEC_PA_PIN, AUDIO_CODEC_ES8311_ADDR);
+        audio_codec_ = new DummyAudioCodec(AUDIO_INPUT_SAMPLE_RATE, AUDIO_OUTPUT_SAMPLE_RATE);
     }
     void InitializeSsd1306Display() {
         // SSD1306 config
