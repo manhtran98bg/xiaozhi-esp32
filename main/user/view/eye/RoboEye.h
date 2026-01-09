@@ -49,7 +49,8 @@ public:
     int screenHeight = 64;      // OLED display height, in pixels
     int frameInterval = 20;     // default value for 50 frames per second (1000/50 = 20 milliseconds)
     unsigned long fpsTimer = 0; // for timing the frames per second
-
+    int screenOffsetX = 0;
+    int screenOffsetY = 0;
     // For controlling mood types and expressions
     bool tired = 0;
     bool angry = 0;
@@ -190,7 +191,6 @@ public:
     float sweat3Height = 2;
     float sweat3Width = 1;
 
-    void update(lv_layer_t *layer);
     void drawEyes(void *ctx);
     void begin(int width, int height, byte frameRate);
 
@@ -213,6 +213,7 @@ public:
     void setVFlicker(bool flickerBit, byte Amplitude);
     void setVFlicker(bool flickerBit);
     void setSweat(bool sweatBit);
+    void setScreenOffset(int32_t offsetX, int32_t offsetY);
     int getScreenConstraint_X();
     int getScreenConstraint_Y();
     void close();
@@ -240,8 +241,6 @@ public:
                                 callback);
 
 private:
-    int baseX = 0;
-    int baseY = 0;
     void drawFillRectangle(void *ctx, int32_t x0, int32_t y0,
                            int32_t w, int32_t h,
                            uint16_t color);

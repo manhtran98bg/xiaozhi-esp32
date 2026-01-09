@@ -87,6 +87,7 @@ void Application::Initialize() {
 
     // Add state change listeners
     state_machine_.AddStateChangeListener([this](DeviceState old_state, DeviceState new_state) {
+        // ESP_LOGI(TAG, "StateChange Event from %d to %d", old_state, new_state);
         xEventGroupSetBits(event_group_, MAIN_EVENT_STATE_CHANGED);
     });
 
@@ -801,13 +802,15 @@ void Application::HandleStateChangedEvent() {
     auto display = board.GetDisplay();
     auto led = board.GetLed();
     led->OnStateChanged();
-    
+    ESP_LOGI(TAG, "HandleStateChangedEvent to %d", new_state);
+    if (new_state != kDeviceStateIdle || new_state != kDeviceStateUnknown)
+        display->SetHide(false);
     switch (new_state) {
         case kDeviceStateUnknown:
         case kDeviceStateIdle:
+             display->SetHide(true);
             display->SetStatus(Lang::Strings::STANDBY);
             display->SetEmotion("neutral");
-            display->SetHide(true);
             audio_service_.EnableVoiceProcessing(false);
             audio_service_.EnableWakeWordDetection(true);
             break;
@@ -817,10 +820,8 @@ void Application::HandleStateChangedEvent() {
             display->SetChatMessage("system", "");
             break;
         case kDeviceStateListening:
-            display->SetHide(false);
             display->SetStatus(Lang::Strings::LISTENING);
             display->SetEmotion("neutral");
-
             // Make sure the audio processor is running
             if (!audio_service_.IsAudioProcessorRunning()) {
                 // Send the start listening command
@@ -830,6 +831,7 @@ void Application::HandleStateChangedEvent() {
             }
             break;
         case kDeviceStateSpeaking:
+            ESP_LOGI(TAG, "go to kDeviceStateSpeaking");
             display->SetStatus(Lang::Strings::SPEAKING);
 
             if (listening_mode_ != kListeningModeRealtime) {
@@ -840,6 +842,7 @@ void Application::HandleStateChangedEvent() {
             audio_service_.ResetDecoder();
             break;
         case kDeviceStateWifiConfiguring:
+            ESP_LOGI(TAG, "go to kDeviceStateWifiConfiguring");
             audio_service_.EnableVoiceProcessing(false);
             audio_service_.EnableWakeWordDetection(false);
             break;

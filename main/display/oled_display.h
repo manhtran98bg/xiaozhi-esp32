@@ -15,7 +15,7 @@ private:
     RoboEyes* eyes_ = nullptr;
     lv_obj_t* screen_main_ = nullptr;
     lv_obj_t* screen_aux_ = nullptr;
-    lv_obj_t* eye_container_ = nullptr;
+    lv_obj_t* eyes_container_ = nullptr;
     lv_obj_t* top_bar_ = nullptr;
     lv_obj_t* status_bar_ = nullptr;
     lv_obj_t* content_ = nullptr;
@@ -30,6 +30,8 @@ private:
 
     lv_draw_rect_dsc_t rect_dsc_;
     lv_draw_triangle_dsc_t triangle_dsc_;
+    int32_t eyes_container_basex_ = 0;
+    int32_t eyes_container_basey_ = 0;
 
     virtual bool Lock(int timeout_ms = 0) override;
     virtual void Unlock() override;

@@ -1,33 +1,6 @@
 #include "RoboEye.h"
 #include "Common.h"
 
-static lv_draw_rect_dsc_t rect_dsc;
-static lv_draw_triangle_dsc_t triangle_dsc;
-static lv_draw_line_dsc_t line_dsc;
-static bool eyeUpdate = false;
-
-static void eyeTimerCallback(lv_timer_t *timer)
-{
-    lv_obj_invalidate((lv_obj_t *)lv_timer_get_user_data(timer));
-    if (!eyeUpdate)
-    {
-        eyeUpdate = true;
-    }
-}
-
-// static void drawEventCallback(lv_event_t *e)
-// {
-//     lv_obj_t *obj = lv_event_get_target_obj(e);
-//     RoboEyes *eyes = (RoboEyes *)lv_obj_get_user_data(obj);
-//     lv_draw_task_t *draw_task = lv_event_get_draw_task(e);
-//     lv_draw_dsc_base_t *base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
-//     if (base_dsc->part == LV_PART_MAIN && eyes && eyeUpdate)
-//     {
-//         eyes->drawEyes(obj, base_dsc->layer);
-//         eyeUpdate = false;
-//     }
-// }
-
 RoboEyes::RoboEyes()
 {
 };
@@ -41,10 +14,6 @@ void RoboEyes::begin(int width, int height, byte frameRate)
     setFramerate(frameRate); // calculate frame interval based on defined frameRate
 }
 
-void RoboEyes::update(lv_layer_t *layer)
-{
-    // Limit drawing updates to defined max framerate
-}
 
 // Draw functions
 
@@ -108,10 +77,15 @@ void RoboEyes::setDisplayColors(uint8_t background, uint8_t main)
 
 void RoboEyes::setWidth(byte leftEye, byte rightEye)
 {
+    
     eyeLwidthNext = leftEye;
     eyeRwidthNext = rightEye;
     eyeLwidthDefault = leftEye;
     eyeRwidthDefault = rightEye;
+    eyeLwidthCurrent = leftEye;
+    eyeRwidthCurrent = rightEye;
+    ESP_LOGI("Eye", "eyeLwidthNext: %d eyeRwidthNext: %d eyeLwidthDefault %d eyeRwidthDefault %d", 
+        eyeLwidthNext, eyeRwidthNext, eyeLwidthDefault, eyeRwidthDefault);
 }
 
 void RoboEyes::setHeight(byte leftEye, byte rightEye)
@@ -120,6 +94,8 @@ void RoboEyes::setHeight(byte leftEye, byte rightEye)
     eyeRheightNext = rightEye;
     eyeLheightDefault = leftEye;
     eyeRheightDefault = rightEye;
+    eyeLheightCurrent = leftEye;
+    eyeRheightCurrent = rightEye;
 }
 
 // Set border radius for left and right eye
@@ -215,6 +191,7 @@ void RoboEyes::setPosition(unsigned char position)
         // Middle center
         eyeLxNext = getScreenConstraint_X() / 2;
         eyeLyNext = getScreenConstraint_Y() / 2;
+        ESP_LOGI("Eye", "eyeLwidthCurrent: %d eyeRwidthCurrent: %d eyeLxNext %d eyeLyNext %d", eyeLwidthCurrent, eyeRwidthCurrent, eyeLxNext, eyeLyNext);
         break;
     }
 }
@@ -281,16 +258,21 @@ void RoboEyes::setSweat(bool sweatBit)
 {
     sweat = sweatBit; // turn sweat on or off
 }
-
+void RoboEyes::setScreenOffset(int32_t offsetX, int32_t offsetY) 
+{
+    ESP_LOGI("Eyes","Set screen offset %ld %ld", offsetX, offsetY);
+    screenOffsetX = offsetX;
+    screenOffsetY = offsetY;
+}
 int RoboEyes::getScreenConstraint_X()
 {
-    return screenWidth - eyeLwidthCurrent - spaceBetweenCurrent - eyeRwidthCurrent;
+    return screenWidth - eyeLwidthCurrent - spaceBetweenCurrent - eyeRwidthCurrent + screenOffsetX;
 }
 
 // Returns the max y position for left eye
 int RoboEyes::getScreenConstraint_Y()
 {
-    return screenHeight - eyeLheightDefault; // using default height here, because height will vary when blinking and in curious mode
+    return screenHeight - eyeLheightDefault + screenOffsetY; // using default height here, because height will vary when blinking and in curious mode
 }
 
 //*********************************************************************************************
