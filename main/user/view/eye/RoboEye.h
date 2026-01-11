@@ -9,7 +9,6 @@
 
 #include "lvgl.h"
 
-#include <functional>
 #include <string>
 #include <functional>
 #include <chrono>
@@ -24,6 +23,7 @@ typedef uint8_t byte;
 #define TIRED 1
 #define ANGRY 2
 #define HAPPY 3
+
 
 // For turning things on or off
 #define ON 1

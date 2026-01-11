@@ -17,6 +17,70 @@ LV_FONT_DECLARE(BUILTIN_TEXT_FONT);
 LV_FONT_DECLARE(BUILTIN_ICON_FONT);
 LV_FONT_DECLARE(font_awesome_30_1);
 
+static void question_mark_draw_cb(lv_event_t *e)
+{
+
+    lv_obj_t *obj = lv_event_get_target_obj(e);
+    lv_draw_task_t *draw_task = lv_event_get_draw_task(e);
+    lv_draw_dsc_base_t *base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
+    if (base_dsc->part == LV_PART_MAIN)
+    {
+        lv_area_t a;
+        lv_obj_get_coords(obj, &a);
+
+        int w = lv_area_get_width(&a);
+        int h = lv_area_get_height(&a);
+
+        /* ===== ARC (phần cong trên) ===== */
+        lv_draw_arc_dsc_t arc_dsc;
+        lv_draw_arc_dsc_init(&arc_dsc);
+        arc_dsc.color = lv_color_black();
+        arc_dsc.width = 3;
+        arc_dsc.rounded = 1;
+        arc_dsc.start_angle = 200;
+        arc_dsc.end_angle = 340;
+
+        lv_point_t center = {
+            .x = a.x1 + w / 2,
+            .y = a.y1 + h / 3};
+        arc_dsc.center = center;
+        int radius = w / 4;
+        arc_dsc.radius = radius;
+
+        lv_draw_arc(base_dsc->layer,
+                    &arc_dsc);
+
+        /* ===== LINE (đoạn thẳng xuống) ===== */
+        lv_draw_line_dsc_t line_dsc;
+        lv_draw_line_dsc_init(&line_dsc);
+        line_dsc.color = lv_color_black();
+        line_dsc.width = 3;
+
+        lv_point_precise_t line_points[2] = {
+            {center.x, center.y + radius - 2},
+            {center.x, a.y1 + h * 2 / 3}};
+        line_dsc.p1 = line_points[0];
+        line_dsc.p2 = line_points[1];
+        lv_draw_line(base_dsc->layer, &line_dsc);
+
+        /* ===== DOT (chấm dưới) ===== */
+        lv_draw_rect_dsc_t rect_dsc;
+        lv_draw_rect_dsc_init(&rect_dsc);
+        rect_dsc.bg_color = lv_color_black();
+        rect_dsc.radius = LV_RADIUS_CIRCLE;
+
+        lv_area_t dot_area;
+        int dot_size = 5;
+
+        dot_area.x1 = center.x - dot_size / 2;
+        dot_area.x2 = dot_area.x1 + dot_size;
+        dot_area.y1 = a.y2 - dot_size - 2;
+        dot_area.y2 = dot_area.y1 + dot_size;
+
+        lv_draw_rect(base_dsc->layer, &rect_dsc, &dot_area);
+    }
+}
+
 OledDisplay::OledDisplay(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handle_t panel,
                          int width, int height, bool mirror_x, bool mirror_y)
     : panel_io_(panel_io), panel_(panel)
@@ -78,19 +142,26 @@ OledDisplay::OledDisplay(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handl
         return;
     }
     eyes_ = new RoboEyes();
-    eyes_->begin(128, 48, 60);
+    eyes_->begin(80, 48, 60);
     eyes_->setWidth(25, 25);
     eyes_->setHeight(25, 25);
-    eyes_->onDrawFillRectangle([this](void *ctx, int32_t x0, int32_t y0, int32_t w, int32_t h, uint16_t color) {
-        DrawFillRectangle(ctx, x0, y0, w, h, color);
-    });
-    eyes_->onDrawFillRectangleRound([this](void *ctx, int32_t x0, int32_t y0, int32_t w, int32_t h, int32_t radius, uint16_t color) {
-        DrawFillRectangleRound(ctx, x0, y0, w, h, radius, color);
-    });
-    eyes_->onDrawFillTriangle([this](void *ctx, int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint16_t color) {
-        DrawFillTriangle(ctx, x0, y0, x1,  y1, x2, y2, color);
-    });
+    eyes_->onDrawFillRectangle([this](void *ctx, int32_t x0, int32_t y0, int32_t w, int32_t h, uint16_t color)
+                               { DrawFillRectangle(ctx, x0, y0, w, h, color); });
+    eyes_->onDrawFillRectangleRound([this](void *ctx, int32_t x0, int32_t y0, int32_t w, int32_t h, int32_t radius, uint16_t color)
+                                    { DrawFillRectangleRound(ctx, x0, y0, w, h, radius, color); });
+    eyes_->onDrawFillTriangle([this](void *ctx, int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint16_t color)
+                              { DrawFillTriangle(ctx, x0, y0, x1, y1, x2, y2, color); });
     eyes_->setAutoblinker(true, 2, 1);
+    
+    // face_ = new Face(50);
+    // face_->onDrawFillRectangle([this](void *ctx, int32_t x0, int32_t y0, int32_t w, int32_t h, uint16_t color)
+    //                            { DrawFillRectangle(ctx, x0, y0, w, h, color); });
+    // face_->onDrawFillRectangleRound([this](void *ctx, int32_t x0, int32_t y0, int32_t w, int32_t h, int32_t radius, uint16_t color)
+    //                                 { DrawFillRectangleRound(ctx, x0, y0, w, h, radius, color); });
+    // face_->onDrawFillTriangle([this](void *ctx, int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint16_t color)
+    //                           { DrawFillTriangle(ctx, x0, y0, x1, y1, x2, y2, color); });
+    // face_->onDrawArc([this](void *ctx, int32_t x0, int32_t y0, int32_t rx, int32_t ry, int32_t start, int32_t end, uint16_t color)
+    //                  { DrawArc(ctx, x0, y0, rx, ry, start, end, color); });
     if (height_ == 64)
     {
         SetupUI_128x64();
@@ -228,9 +299,29 @@ void OledDisplay::DrawFillTriangle(void *ctx, int32_t x0, int32_t y0, int32_t x1
     lv_draw_triangle((lv_layer_t *)ctx, &triangle_dsc_);
 }
 
+void OledDisplay::DrawArc(void *ctx, int32_t x0, int32_t y0,
+                          int32_t rx, int32_t ry,
+                          int32_t start, int32_t end,
+                          uint16_t color)
+{
+    if (color == 0)
+        arc_dsc_.color = lv_color_white();
+    else if (color == 1)
+        arc_dsc_.color = lv_color_black();
+    arc_dsc_.width = ry * 2;
+    arc_dsc_.radius = rx;
+    lv_point_t center = {x0, y0};
+    arc_dsc_.center = center;
+    arc_dsc_.start_angle = start;
+    arc_dsc_.end_angle = end;
+    lv_draw_arc((lv_layer_t *)ctx, &arc_dsc_);
+}
+static bool reDraw = false;
 static void eyeTimerCallback(lv_timer_t *timer)
 {
     lv_obj_invalidate((lv_obj_t *)lv_timer_get_user_data(timer));
+    if (!reDraw)
+        reDraw = true;
 }
 
 static void drawEyesEventCallbackk(lv_event_t *e)
@@ -239,11 +330,15 @@ static void drawEyesEventCallbackk(lv_event_t *e)
     OledDisplay *self = (OledDisplay *)lv_obj_get_user_data(obj);
     DisplayLockGuard lock(self);
     RoboEyes *eyes = self->GetEyes();
+    Face *face = self->GetFace();
     lv_draw_task_t *draw_task = lv_event_get_draw_task(e);
     lv_draw_dsc_base_t *base_dsc = (lv_draw_dsc_base_t *)lv_draw_task_get_draw_dsc(draw_task);
-    if (base_dsc->part == LV_PART_MAIN && eyes)
+    if (base_dsc->part == LV_PART_MAIN && eyes && reDraw)
     {
-        eyes->drawEyes((void*)base_dsc->layer);
+        eyes->drawEyes((void *)base_dsc->layer);
+        // ESP_LOGI(TAG, "Draw face");
+        // face->Update((void *)base_dsc->layer);
+        reDraw = false;
     }
 }
 void OledDisplay::SetupUI_128x64()
@@ -378,23 +473,47 @@ void OledDisplay::SetupUI_128x64()
     lv_obj_center(low_battery_label_);
     lv_obj_add_flag(low_battery_popup_, LV_OBJ_FLAG_HIDDEN);
 
-    screen_aux_ = lv_obj_create(NULL);
-    eyes_container_ = lv_obj_create(screen_aux_);
-    lv_obj_set_size(eyes_container_, 128, 48);
-    lv_obj_set_user_data(eyes_container_, this);
-    lv_obj_align(eyes_container_, LV_ALIGN_TOP_MID, 0, 0);
+    screen_eye_ = lv_obj_create(NULL);
+    // Eye
+    screen_eye_eyes_ = lv_obj_create(screen_eye_);
+    lv_obj_set_size(screen_eye_eyes_, 100, 48);
+    lv_obj_set_user_data(screen_eye_eyes_, this);
+    lv_obj_align(screen_eye_eyes_, LV_ALIGN_TOP_MID, 0, 0);
+    lv_obj_update_layout(screen_eye_eyes_);
     lv_area_t obj_coords;
-    lv_obj_get_coords(eyes_container_, &obj_coords);
+    lv_obj_get_coords(screen_eye_eyes_, &obj_coords);
     eyes_container_basex_ = obj_coords.x1;
     eyes_container_basey_ = obj_coords.y1;
+    ESP_LOGI(TAG, "coord (%d %d) (%d %d)", obj_coords.x1, obj_coords.y1,
+    obj_coords.x2, obj_coords.y2);
     lv_draw_triangle_dsc_init(&triangle_dsc_);
     lv_draw_rect_dsc_init(&rect_dsc_);
-    lv_obj_add_event_cb(eyes_container_, drawEyesEventCallbackk, LV_EVENT_DRAW_TASK_ADDED, NULL);
-    
+    lv_draw_arc_dsc_init(&arc_dsc_);
+    lv_obj_add_event_cb(screen_eye_eyes_, drawEyesEventCallbackk, LV_EVENT_DRAW_TASK_ADDED, NULL);
 
-    //load default screen
-    lv_screen_load(screen_main_);
-    
+    /* Status bar - for center text labels */
+    screen_eye_status_bar_ = lv_obj_create(screen_eye_);
+    lv_obj_set_size(screen_eye_status_bar_, LV_HOR_RES, 16);
+    lv_obj_set_style_radius(screen_eye_status_bar_, 0, 0);
+    lv_obj_set_style_bg_opa(screen_eye_status_bar_, LV_OPA_TRANSP, 0); // Transparent background
+    lv_obj_set_style_border_width(screen_eye_status_bar_, 0, 0);
+    lv_obj_set_style_pad_all(screen_eye_status_bar_, 0, 0);
+    lv_obj_set_scrollbar_mode(screen_eye_status_bar_, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_set_style_layout(screen_eye_status_bar_, LV_LAYOUT_NONE, 0); // Use absolute positioning
+    lv_obj_align(screen_eye_status_bar_, LV_ALIGN_BOTTOM_MID, 0, 0);    // Overlap with top_bar_
+
+    screen_eye_status_label_ = lv_label_create(screen_eye_status_bar_);
+    lv_obj_set_width(screen_eye_status_label_, LV_HOR_RES);
+    lv_label_set_long_mode(screen_eye_status_label_, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_obj_set_style_text_align(screen_eye_status_label_, LV_TEXT_ALIGN_CENTER, 0);
+    lv_label_set_text(screen_eye_status_label_, "Listening...");
+    lv_obj_align(screen_eye_status_label_, LV_ALIGN_CENTER, 0, 0);
+
+    // load default screen
+    // lv_screen_load(screen_main_);
+    lv_obj_add_flag(screen_eye_eyes_, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
+    lv_screen_load(screen_eye_);
+    draw_eye_timer_ = lv_timer_create(eyeTimerCallback, 30, screen_eye_eyes_);
 }
 
 void OledDisplay::SetupUI_128x32()
@@ -483,11 +602,6 @@ void OledDisplay::SetupUI_128x32()
     lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE);
     lv_obj_set_style_anim(chat_message_label_, &a, LV_PART_MAIN);
     lv_obj_set_style_anim_duration(chat_message_label_, lv_anim_speed_clamped(60, 300, 60000), LV_PART_MAIN);
-
-    screen_aux_ = lv_obj_create(NULL);
-
-    // load Screen
-    lv_screen_load(screen_aux_);
 }
 
 void OledDisplay::SetEmotion(const char *emotion)
@@ -508,6 +622,29 @@ void OledDisplay::SetEmotion(const char *emotion)
     }
 }
 
+void OledDisplay::SetEmotion(unsigned char emotion)
+{
+    static unsigned char position = 0;
+    if (eyes_ == nullptr)
+        return;
+
+    if (emotion >= 3) {
+        eyes_->setCuriosity(true);
+        if (position < 8) position++;
+        else position = 0;
+        emotion = 3;
+    }
+    else {
+        eyes_->setCuriosity(false);
+    }
+    if (emotion == 2)
+        eyes_->anim_confused();
+    else if (emotion == 1)
+        eyes_->anim_laugh();
+    eyes_->setMood(emotion);
+    eyes_->setPosition(position);
+    ESP_LOGI(TAG, " set mood %d at pos %d", emotion, position);
+}
 void OledDisplay::SetTheme(Theme *theme)
 {
     DisplayLockGuard lock(this);
@@ -523,26 +660,28 @@ void OledDisplay::SetHide(bool hide)
 {
     DisplayLockGuard lock(this);
     ESP_LOGI(TAG, "SetHide: %s", hide ? "true" : "false");
-    
+
     if (hide)
     {
-        lv_obj_add_flag(container_, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(eyes_container_, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(eyes_container_, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
-        lv_screen_load(screen_aux_);
-        draw_eye_timer_ = lv_timer_create(eyeTimerCallback, 20, eyes_container_);
+        lv_obj_add_flag(screen_eye_status_bar_, LV_OBJ_FLAG_HIDDEN);
+        // lv_obj_clear_flag(screen_eye_eyes_, LV_OBJ_FLAG_HIDDEN);
+
+        // lv_obj_add_flag(screen_eye_eyes_, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
+        // lv_screen_load(screen_eye_);
+        // draw_eye_timer_ = lv_timer_create(eyeTimerCallback, 30, screen_eye_eyes_);
     }
     else
     {
-        lv_obj_add_flag(eyes_container_, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(container_, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(eyes_container_, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
-        if (draw_eye_timer_)
-        {
-            lv_timer_del(draw_eye_timer_);
-            draw_eye_timer_ = nullptr;
-        }
-            
-        lv_screen_load(screen_main_);
+        // lv_obj_add_flag(eyes_container_, LV_OBJ_FLAG_HIDDEN);
+        // lv_obj_clear_flag(container_, LV_OBJ_FLAG_HIDDEN);
+        // lv_obj_clear_flag(eyes_container_, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
+        lv_obj_clear_flag(screen_eye_status_bar_, LV_OBJ_FLAG_HIDDEN);
+        // if (draw_eye_timer_)
+        // {
+        //     lv_timer_del(draw_eye_timer_);
+        //     draw_eye_timer_ = nullptr;
+        // }
+
+        // lv_screen_load(screen_main_);
     }
 }

@@ -126,13 +126,18 @@ private:
     }
     void InitializeButtons() {
         boot_button_.OnClick([this]() {
+            static unsigned char emote = 0;
+            static unsigned char pos = 0;
             auto& app = Application::GetInstance();
             if (app.GetDeviceState() == kDeviceStateStarting) {
                 EnterWifiConfigMode();
                 return;
             }
             ESP_LOGI(TAG, "Press");
-            app.ToggleChatState();
+            display_->SetEmotion(emote);
+            if (emote < 11)  emote++;
+            else emote = 0;
+            // app.ToggleChatState();
         });
     }
 public:

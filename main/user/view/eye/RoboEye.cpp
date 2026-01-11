@@ -191,7 +191,7 @@ void RoboEyes::setPosition(unsigned char position)
         // Middle center
         eyeLxNext = getScreenConstraint_X() / 2;
         eyeLyNext = getScreenConstraint_Y() / 2;
-        ESP_LOGI("Eye", "eyeLwidthCurrent: %d eyeRwidthCurrent: %d eyeLxNext %d eyeLyNext %d", eyeLwidthCurrent, eyeRwidthCurrent, eyeLxNext, eyeLyNext);
+        // ESP_LOGI("Eye", "eyeLwidthCurrent: %d eyeRwidthCurrent: %d eyeLxNext %d eyeLyNext %d", eyeLwidthCurrent, eyeRwidthCurrent, eyeLxNext, eyeLyNext);
         break;
     }
 }

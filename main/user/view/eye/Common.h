@@ -4,9 +4,9 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
-#include "esp_system.h"
+#include "esp_random.h"
 
-#define esp_random() (rand() % UINT32_MAX)
+// #define esp_random() (rand() % UINT32_MAX)
 
 #define RANDOM_RANGE(min, max) \
     ((int)(esp_random() % ((max) - (min)) + (min)))
