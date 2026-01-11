@@ -744,6 +744,7 @@ file(GLOB_RECURSE SRCS
      ${USER_CODE_ROOT}/screen/driver/*.cpp
      ${USER_CODE_ROOT}/screen/port_esp_panel/*.cpp
      ${USER_CODE_ROOT}/view/eye/*.cpp
+     ${USER_CODE_ROOT}/assets/font/*.c
      )
 list(APPEND SOURCES ${SRCS})
 

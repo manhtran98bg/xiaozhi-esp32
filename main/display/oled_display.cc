@@ -16,7 +16,7 @@
 LV_FONT_DECLARE(BUILTIN_TEXT_FONT);
 LV_FONT_DECLARE(BUILTIN_ICON_FONT);
 LV_FONT_DECLARE(font_awesome_30_1);
-
+LV_FONT_DECLARE(font_7seg_16);
 static void question_mark_draw_cb(lv_event_t *e)
 {
 
@@ -527,7 +527,6 @@ void OledDisplay::SetupUI_128x32()
 
     screen_main_ = lv_obj_create(NULL);
     lv_obj_set_style_text_font(screen_main_, text_font, 0);
-
     /* Container */
     container_ = lv_obj_create(screen_main_);
     lv_obj_set_size(container_, LV_HOR_RES, LV_VER_RES);
